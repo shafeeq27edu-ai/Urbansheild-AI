@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #020617;
+  /* slate-950 */
+  --foreground: #f8fafc;
+  /* slate-50 */
+  --accent-glow: #3b82f6;
+  /* blue-500 */
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.01em;
+  /* Tighter premium feel */
+}
+
+/* Glassmorphism Utility - Premium Upgrade */
+.glass-panel {
+  @apply backdrop-blur-md bg-slate-900/40 border border-white/10 rounded-xl shadow-2xl;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.glass-card {
+  @apply backdrop-blur-lg bg-slate-900/40 border border-slate-700/30 rounded-2xl;
+}
+
+/* Premium Text Utilities */
+.text-premium-mono {
+  @apply font-mono text-cyan-400 tracking-tighter;
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+}
+
+.text-label {
+  @apply text-[10px] font-black uppercase tracking-[0.2em] text-slate-500;
+}
+
+.text-value-huge {
+  @apply text-4xl font-black italic tracking-tighter text-white drop-shadow-lg;
+}
+
+/* Micro-interaction Utilities */
+.hover-lift {
+  @apply transition-transform duration-300 ease-out hover:-translate-y-1;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
