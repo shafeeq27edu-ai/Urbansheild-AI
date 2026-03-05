@@ -1,5 +1,5 @@
-import { logger } from '../utils/logger';
-import { weatherService, WeatherData } from './weatherService';
+import { logger } from '@/utils/logger';
+import { weatherService, WeatherData } from '@/services/weatherService';
 
 export interface RiskPrediction {
     overallRisk: number;
@@ -17,7 +17,8 @@ export const riskEngine = {
 
             let weatherRisk = 0;
             if (weather) {
-                weatherRisk = (weather.windSpeed * 0.5) + (weather.precipitation * 2.0);
+                // Compound weather risk: Wind + Precipitation + Humidity factor
+                weatherRisk = (weather.windspeed * 0.4) + (weather.rainfall * 2.5) + (weather.humidity * 0.1);
                 weatherRisk = Math.min(100, Math.max(0, weatherRisk));
             }
 

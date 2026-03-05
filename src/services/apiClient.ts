@@ -1,5 +1,5 @@
-import { logger } from '../utils/logger';
-import { ApiResponse } from '../types';
+import { logger } from '@/utils/logger';
+import { ApiResponse } from '@/types';
 
 interface FetchOptions extends RequestInit {
     timeout?: number;

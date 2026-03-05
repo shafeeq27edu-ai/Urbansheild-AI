@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useSimulationStore } from '@/store/useSimulationStore';
-import { calculateFloodRisk, calculateHeatRisk, generateIntelligenceReport, RiskOutput } from '@/lib/inference';
+import { calculateFloodRisk, calculateHeatRisk, generateIntelligenceReport, RiskOutput } from '@/engines/predictionEngine';
 
 export interface ZoneRisk {
     id: string;
@@ -48,7 +48,7 @@ export const useRiskIntelligence = () => {
             };
 
             const heatInputs = {
-                temperature_c: 28 + tempIncrease, 
+                temperature_c: 28 + tempIncrease,
                 humidity_percent: Math.min(100, zone.humidityBase + (rainfallIncrease * 0.1)),
                 urban_heat_index: zone.heatIndex,
                 population_density_index: zone.popDensity
@@ -86,7 +86,7 @@ export const useRiskIntelligence = () => {
             // Upgrade 11: Resource Allocation Optimization
             const efficiencyDrainage = (flood.score * 0.3) / 10;
             const efficiencyGreen = (heat.score * 0.2) / 5;
-            const optimalAction = efficiencyDrainage > efficiencyGreen 
+            const optimalAction = efficiencyDrainage > efficiencyGreen
                 ? "Infrastructure: Major Drainage Expansion (Efficiency: 1.5x)"
                 : "Urban Reforestation & Green Roofs (Efficiency: 2.1x)";
 

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/utils/logger";
 import { ApiResponse } from "@/types";
+import { weatherService } from "@/services/weatherService";
+import { calculateRiskMetrics } from "@/engines/predictionEngine";
 
 export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
     try {
@@ -30,7 +32,10 @@ export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
 
         logger.info(`Processing stress-test for ${cityStr} (${lat}, ${lon})`);
 
-        // Forward to Python hybrid engine
+        // Fetch real-time weather telemetry
+        const weather = await weatherService.fetchWeather(Number(lat), Number(lon));
+
+        // Forward to Python hybrid engine with real weather overrides
         const response = await fetch("http://127.0.0.1:8001/analyze-city", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -38,7 +43,13 @@ export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
                 city: cityStr,
                 overrides: {
                     ...(lat !== undefined && { lat: Number(lat) }),
-                    ...(lon !== undefined && { lon: Number(lon) })
+                    ...(lon !== undefined && { lon: Number(lon) }),
+                    ...(weather && {
+                        temperature: weather.temperature,
+                        humidity: weather.humidity,
+                        rainfall: weather.rainfall,
+                        windspeed: weather.windspeed
+                    })
                 }
             })
         });
@@ -50,9 +61,21 @@ export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
 
         const data = await response.json();
 
+        // Phase 4: Calculate standardized risk metrics for explainable categorization
+        const riskMetrics = calculateRiskMetrics({
+            rainfall: weather?.rainfall || 0,
+            temperature: weather?.temperature || 28,
+            humidity: weather?.humidity || 60,
+            populationDensity: data?.urban_profile?.population_density || 0.5,
+            drainageCapacity: data?.urban_profile?.drainage_efficiency || 0.5
+        });
+
         return NextResponse.json({
             success: true,
-            data: data,
+            data: {
+                ...data,
+                ...riskMetrics
+            },
             timestamp: new Date().toISOString(),
             source: "urban-intelligence-core"
         });

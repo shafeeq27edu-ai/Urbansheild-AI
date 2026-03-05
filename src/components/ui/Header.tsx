@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ShieldCheck, ChevronDown, MapPin, Menu } from 'lucide-react';
-import IntelligenceMenu from '../navigation/IntelligenceMenu';
+import IntelligenceMenu from '@/components/navigation/IntelligenceMenu';
 
 interface HeaderProps {
     selectedCity: string;

@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import { useRiskIntelligence } from '@/hooks/useRiskIntelligence';
-import { generateSyntheticZones } from '@/lib/generator';
+import { generateSyntheticZones } from '@/engines/predictionEngine';
 import { FeatureCollection, Point } from 'geojson';
 
 // placeholder token
