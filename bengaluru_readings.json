@@ -1,0 +1,39 @@
+{
+  "flood_risk_index": 29.57,
+  "heat_risk_index": 24.46,
+  "compound_risk_index": 24.82,
+  "humanitarian_impact_index": 24.82,
+  "risk_category": "Low",
+  "temporal_escalation_6h": "+0%",
+  "risk_velocity": "1.0x",
+  "infrastructure_collapse_prob": 0.032,
+  "uncertainty_band": "\u00b14.7",
+  "estimated_population_exposed": 1305,
+  "model_confidence": "High",
+  "optimization_insight": {
+    "optimal_action": "Urban Reforestation & Green Roofs",
+    "efficiency_score": 0.36,
+    "estimated_cost": "\u20b95M",
+    "impact": "Thermal Mitigation & Resilience"
+  },
+  "intelligence_report": "Risk levels are accelerating rapidly; immediate intervention recommended.",
+  "top_drivers": [
+    "rainfall_mm",
+    "drainage_capacity_index",
+    "elevation_index"
+  ],
+  "city_metadata": {
+    "name": "Bengaluru Metropolis",
+    "lat": 12.9716,
+    "lon": 77.5946,
+    "data_source": "Open-Meteo + UrbanShield Profiles",
+    "last_updated": "2026-03-03 20:27:06",
+    "is_live_sync": true
+  },
+  "live_weather": {
+    "avg_temperature_c": 20.9,
+    "humidity_percent": 64,
+    "rainfall_mm": 0.0,
+    "timestamp": "2026-03-03 20:27:06"
+  }
+}

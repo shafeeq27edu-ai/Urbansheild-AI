@@ -1,0 +1,199 @@
+/* Retro Modern Civic Console Theme */
+:root {
+  --color-bg: #f5f2eb;
+  /* Off-white / Parchment */
+  --color-navy: #1a2a40;
+  /* Muted Navy */
+  --color-forest: #2c4a3e;
+  /* Deep Forest Green */
+  --color-charcoal: #333333;
+  --color-accent: #b8860b;
+  /* Muted Gold / Dark Goldenrod */
+  --color-copper: #b87333;
+  --color-amber: #ffbf00;
+  --color-muted-red: #a52a2a;
+
+  --font-serif: "Playfair Display", "Georgia", serif;
+  --font-sans: "Inter", "Roboto", "Segoe UI", sans-serif;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+  margin: 0;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  color: var(--color-navy);
+  letter-spacing: -0.02em;
+}
+
+.civic-card {
+  background: white;
+  border: 1px solid rgba(26, 42, 64, 0.1);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  /* Soft elevation */
+  padding: 1.5rem;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.civic-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(26, 42, 64, 0.12);
+}
+
+.civic-button {
+  background-color: var(--color-navy);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  border: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.civic-button:hover {
+  background-color: #243a57;
+  box-shadow: 0 4px 15px rgba(26, 42, 64, 0.3);
+}
+
+.civic-button-secondary {
+  background: transparent;
+  border: 2px solid var(--color-navy);
+  color: var(--color-navy);
+}
+
+.civic-button-secondary:hover {
+  background: var(--color-navy);
+  color: white;
+}
+
+.civic-input-group {
+  margin-bottom: 1.5rem;
+}
+
+.civic-input-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--color-navy);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.1em;
+}
+
+.civic-slider {
+  width: 100%;
+  accent-color: var(--color-navy);
+}
+
+/* Map Overlay */
+.map-info-card {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
+  background: white;
+  padding: 1rem;
+  border: 1px solid var(--color-navy);
+  box-shadow: 4px 4px 0px var(--color-navy);
+}
+
+/* Progress Rings / Meters */
+.risk-meter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.meter-bar {
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.meter-fill {
+  height: 100%;
+  transition: width 1s ease-out;
+}
+
+.meter-fill-low {
+  background: var(--color-forest);
+}
+
+.meter-fill-mod {
+  background: var(--color-accent);
+}
+
+.meter-fill-high {
+  background: var(--color-muted-red);
+}
+
+@keyframes soft-pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.civic-status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  animation: soft-pulse 2s infinite;
+}
+
+/* Visual Intelligence Elements */
+.globe-container {
+  position: absolute;
+  top: 80px;
+  right: 80px;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.globe-svg {
+  width: 450px;
+  height: 450px;
+  animation: rotateGlobe 60s linear infinite;
+}
+
+@keyframes rotateGlobe {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.page-wrapper {
+  perspective: 1200px;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

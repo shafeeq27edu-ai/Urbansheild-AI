@@ -1,0 +1,39 @@
+
+> urbanshield-ai@0.1.0 build
+> next build
+
+   ▲ Next.js 14.1.0
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+Compiler server unexpectedly exited with code: null and signal: SIGTERM
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/11) ...
+   Generating static pages (2/11) 
+   Generating static pages (5/11) 
+   Generating static pages (8/11) 
+ ✓ Generating static pages (11/11) 
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    7.87 kB         129 kB
+├ ○ /_not-found                          882 B          85.1 kB
+├ ○ /about                               580 B          84.8 kB
+├ ○ /api/health                          0 B                0 B
+├ λ /api/predict                         0 B                0 B
+├ λ /api/stress-test                     0 B                0 B
+├ ○ /contact                             580 B          84.8 kB
+├ ○ /how-it-works                        2.76 kB         131 kB
+└ ○ /intelligence                        580 B          84.8 kB
++ First Load JS shared by all            84.2 kB
+  ├ chunks/69-bf0faca87d920f27.js        28.9 kB
+  ├ chunks/fd9d1056-803f3afc98c64581.js  53.4 kB
+  └ other shared chunks (total)          1.97 kB
+
+
+○  (Static)   prerendered as static content
+λ  (Dynamic)  server-rendered on demand using Node.js
+

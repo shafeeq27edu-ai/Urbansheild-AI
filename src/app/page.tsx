@@ -1,138 +1,201 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from "framer-motion";
-import DigitalTwinDashboard from '@/components/Dashboard';
+import { apiClient } from '@/services/apiClient';
 
-import Footer from '@/components/ui/Footer';
-
-// ... (Particlefield component remains same) ...
-
-const Particlefield = () => (
-    <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-        <div className="h-full w-full bg-[size:30px_30px] bg-[radial-gradient(circle_at_center,#1e293b_1px,transparent_1px)]" />
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.3 }}
-            transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
-            className="absolute inset-0 bg-gradient-to-t from-blue-900/10 via-transparent to-blue-950/20"
-        />
-    </div>
-);
+import Header from '@/components/retro/Header';
+import RiskPanel from '@/components/retro/RiskPanel';
+import LocationSearch from '@/components/map/LocationSearch';
+import UrbanMap from '@/components/map/UrbanMap';
 
 export default function Home() {
     const [isLaunched, setIsLaunched] = useState(false);
-    const [scrollPos, setScrollPos] = useState(0);
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const handleScroll = () => setScrollPos(window.scrollY);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    // Default to Bengaluru coordinates
+    const [selectedCity, setSelectedCity] = useState("Bengaluru");
+    const [selectedCoords, setSelectedCoords] = useState<[number, number]>([12.9716, 77.5946]);
+
+    const [metrics, setMetrics] = useState<any>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    const CITY_COORDS: Record<string, [number, number]> = {
+        "Bengaluru": [12.9716, 77.5946],
+        "Delhi": [28.6139, 77.2090],
+        "Mumbai": [19.0760, 72.8777],
+        "Chennai": [13.0827, 80.2707],
+        "Hyderabad": [17.3850, 78.4867]
+    };
+
+    const fetchMetrics = async (city: string, lat?: number, lng?: number) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const latitude = lat ?? selectedCoords[0];
+            const longitude = lng ?? selectedCoords[1];
+
+            const payload = {
+                city,
+                lat: latitude,
+                lng: longitude
+            };
+
+            const res = await apiClient.fetch<any>("/api/stress-test", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+
+            if (res.success && res.data) {
+                setMetrics(res.data);
+            } else {
+                throw new Error(res.error || "API returned an error");
+            }
+        } catch (err: any) {
+            console.error("Prediction failed", err);
+            setError(err.message || "SYSTEM ERROR: Backend API failed.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const executeStressTest = async () => {
+        fetchMetrics(selectedCity, selectedCoords[0], selectedCoords[1]);
+    };
+
+    const handleCityChange = (city: string) => {
+        setSelectedCity(city);
+        const coords = CITY_COORDS[city] || [12.9716, 77.5946];
+        setSelectedCoords(coords);
+    };
+
+    const handleMapClick = (lat: number, lng: number) => {
+        setSelectedCoords([lat, lng]);
+        fetchMetrics(selectedCity, lat, lng);
+    };
+
+    const handleLocationSelect = (lat: number, lng: number, displayName: string) => {
+        // Extract city from displayName if possible, otherwise use current selectedCity string
+        const parts = displayName.split(",");
+        const derivedCity = parts.length > 0 ? parts[0].trim() : selectedCity;
+        setSelectedCity(derivedCity);
+        setSelectedCoords([lat, lng]);
+        fetchMetrics(derivedCity, lat, lng);
+    };
 
     return (
-        <AnimatePresence mode="wait">
-            {!isLaunched ? (
-                <motion.main
-                    key="landing"
-                    exit={{ opacity: 0, scale: 0.95, filter: "blur(40px)", y: -50 }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                    className="relative min-h-[150vh] w-full bg-slate-950 text-white selection:bg-blue-500/30"
-                >
-                    {/* STICKY CONTENT */}
-                    <section className="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden">
-                        <Particlefield />
-
-                        {/* Animated Globe / Pulse Proxy */}
-                        <motion.div
-                            style={{ scale: 1 + scrollPos * 0.0005, opacity: 1 - scrollPos * 0.002 }}
-                            className="absolute z-0 pointer-events-none"
-                        >
-                            <div className="h-[600px] w-[600px] rounded-full border border-blue-500/10 bg-blue-500/5 blur-[80px] animate-pulse" />
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[700px] w-[700px] rounded-full border border-cyan-500/5" />
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                            className="relative z-10 text-center px-4 max-w-5xl"
-                        >
-                            <motion.div
-                                className="mb-8 inline-flex items-center gap-3 rounded-full border border-blue-500/30 bg-blue-500/10 px-6 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 backdrop-blur-md shadow-[0_0_20px_rgba(59,130,246,0.2)]"
-                            >
-                                <div className="h-2 w-2 rounded-full bg-blue-500 animate-ping" />
-                                Planetary Intelligence v2.0
-                            </motion.div>
-
-                            <h1 className="mb-6 text-7xl font-black tracking-tighter sm:text-[10rem] leading-[0.85] bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-slate-500 drop-shadow-2xl">
-                                URBAN<br /><span className="text-blue-500">SHIELD</span>
-                            </h1>
-
-                            <p className="mx-auto mt-8 max-w-2xl text-lg text-slate-400 sm:text-2xl font-light leading-relaxed tracking-tight">
-                                Architecting urban resilience through <span className="text-white font-medium italic">Predictive Intelligence</span>.
-                                <br />A Digital Twin framework for climate-responsive governance.
-                            </p>
-
-                            <div className="mt-16 flex flex-wrap justify-center gap-8">
-                                <button
-                                    onClick={() => setIsLaunched(true)}
-                                    className="group relative overflow-hidden rounded-full bg-white px-12 py-5 font-black uppercase tracking-widest text-slate-950 transition-all hover:scale-105 active:scale-95 hover:shadow-[0_0_60px_rgba(255,255,255,0.3)] shadow-2xl"
-                                >
-                                    <span className="relative z-10 flex items-center gap-3">
-                                        Launch System
-                                        <div className="h-1.5 w-1.5 rounded-full bg-blue-600 group-hover:animate-bounce" />
-                                    </span>
-                                </button>
-
-                                <button className="rounded-full border border-slate-700 bg-slate-900/50 px-12 py-5 font-black uppercase tracking-widest text-slate-200 backdrop-blur-md transition-all hover:bg-slate-800 hover:border-slate-500 ring-1 ring-white/5">
-                                    Methodology
-                                </button>
+        <main className="min-h-screen bg-[var(--color-bg)] flex flex-col font-sans">
+            <AnimatePresence mode="wait">
+                {!isLaunched ? (
+                    <motion.div
+                        key="entry"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, scale: 1.02 }}
+                        className="flex-1 flex flex-col items-center justify-center p-8 text-center"
+                    >
+                        <div className="civic-card max-w-2xl p-12 border-2 border-[var(--color-navy)] flex flex-col items-center gap-8 shadow-[12px_12px_0px_var(--color-navy)]">
+                            <div className="flex flex-col items-center">
+                                <h1 className="text-6xl font-black m-0 leading-[0.85] text-[var(--color-navy)] tracking-tighter uppercase">
+                                    URBAN<br /><span className="text-[var(--color-accent)]">SHIELD</span>
+                                </h1>
                             </div>
-                        </motion.div>
-
-                        {/* Scroll Indicator */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 2 }}
-                            className="absolute bottom-12 flex flex-col items-center gap-2 text-slate-500"
-                        >
-                            <span className="text-[10px] uppercase font-black tracking-[0.3em]">Scroll for Context</span>
-                            <div className="h-12 w-px bg-gradient-to-b from-blue-500 to-transparent" />
-                        </motion.div>
-                    </section>
-
-                    {/* BELOW THE FOLD DECOR */}
-                    <section className="relative h-[100vh] bg-slate-950 px-12 py-24 z-20 flex flex-col justify-between">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-7xl mx-auto w-full">
-                            {[
-                                { title: "MICRO-INFERENCE", desc: "Hyper-local risk projections calculated at 5m resolution using edge-accelerated neural weights.", icon: "01" },
-                                { title: "ADAPTIVE DEFENSE", desc: "Dynamic policy recommendations that adapt instantly to changing precipitation and thermal profiles.", icon: "02" },
-                                { title: "SIMULATION GRID", desc: "Explore millions of 'What-If' scenarios to stress-test your city against future climate extremes.", icon: "03" }
-                            ].map(card => (
-                                <div key={card.title} className="glass-card p-12 border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-colors group">
-                                    <div className="text-4xl font-black text-blue-500/20 mb-8 font-mono group-hover:text-blue-500/40 transition-colors">{card.icon}</div>
-                                    <h3 className="text-xl font-bold text-white mb-4 tracking-tight">{card.title}</h3>
-                                    <p className="text-slate-400 text-sm leading-relaxed">{card.desc}</p>
-                                </div>
-                            ))}
+                            <button
+                                onClick={() => setIsLaunched(true)}
+                                className="civic-button px-16 py-5 text-lg"
+                            >
+                                INITIALIZE CONSOLE
+                            </button>
                         </div>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="console"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col flex-1"
+                    >
+                        <div className="page-wrapper relative">
+                            {/* LIVE TELEMETRY BADGE inside Header implicitly, or just render it below Header */}
+                            <div className="w-full bg-[var(--color-navy)] text-white text-[10px] font-black tracking-widest uppercase p-1 flex justify-between items-center px-4">
+                                <span className={!error && metrics ? "text-green-400" : "text-slate-400"}>
+                                    {!error && metrics ? "● LIVE TELEMETRY ACTIVE" : "● TELEMETRY OFFLINE"}
+                                </span>
+                            </div>
 
-                        <Footer />
-                    </section>
-                </motion.main>
-            ) : (
-                <motion.div
-                    key="dashboard"
-                    initial={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
-                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                    transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                    className="fixed inset-0 z-[100]"
-                >
-                    <DigitalTwinDashboard setIsLaunched={setIsLaunched} />
-                </motion.div>
-            )}
-        </AnimatePresence>
+                            <Header
+                                selectedCity={selectedCity}
+                                onCityChange={handleCityChange}
+                                overallRisk={metrics?.current?.compound_risk || 0}
+                            />
+
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 p-8 flex-1">
+                                <div className="lg:col-span-3">
+                                    <button
+                                        onClick={executeStressTest}
+                                        disabled={loading}
+                                        className="w-full bg-amber-500 text-white font-black py-4 uppercase mb-4 shadow-[4px_4px_0px_#b45309] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 flex items-center justify-center"
+                                    >
+                                        {loading ? "Running Urban Risk Simulation..." : "Execute Stress Test"}
+                                    </button>
+
+                                    {loading && (
+                                        <div className="text-[10px] uppercase font-black tracking-widest text-[var(--color-navy)] animate-pulse flex items-center gap-2 mb-4">
+                                            <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full animate-bounce"></div>
+                                            Downloading Telemetry & Modeling Prediction...
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="lg:col-span-6 flex flex-col gap-4">
+                                    {/* Location Search Bar */}
+                                    <LocationSearch onSelectLocation={handleLocationSelect} />
+
+                                    <div className="flex justify-between items-center bg-white/40 p-2 border border-[var(--color-navy)]/5 rounded-sm">
+                                        <span className="text-[10px] font-black uppercase text-[var(--color-navy)] tracking-widest">
+                                            Spatial Threat Mapping
+                                        </span>
+                                    </div>
+
+                                    {/* Map is ALWAYS rendered regardless of error or metrics */}
+                                    <div className="flex-1 min-h-[500px] relative border-2 border-[var(--color-navy)]">
+                                        <UrbanMap
+                                            center={selectedCoords}
+                                            riskLevel={metrics?.current?.compound_risk || 0}
+                                            onMapClick={handleMapClick}
+                                        />
+
+                                        {/* Overlay Error State over the map if it fails, but keep map visible beneath */}
+                                        {error && (
+                                            <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-red-500/10 backdrop-blur-sm pointer-events-none">
+                                                <div className="text-center p-6 bg-white border-2 border-red-500 pointer-events-auto">
+                                                    <h3 className="text-red-600 font-black uppercase tracking-widest mb-2 flex items-center gap-2 justify-center">
+                                                        Connection Error
+                                                    </h3>
+                                                    <p className="text-xs font-bold text-slate-800 uppercase tracking-wide">{error}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="lg:col-span-3 flex flex-col gap-6">
+                                    {metrics ? (
+                                        <RiskPanel data={{
+                                            flood_risk_index: metrics.flood_risk_index !== undefined ? metrics.flood_risk_index : metrics.current?.flood_risk,
+                                            heat_risk_index: metrics.heat_risk_index !== undefined ? metrics.heat_risk_index : metrics.current?.heat_risk,
+                                            compound_risk_index: metrics.compound_risk_index !== undefined ? metrics.compound_risk_index : metrics.current?.compound_risk,
+                                        }} />
+                                    ) : (
+                                        <div className="text-center font-bold text-slate-400">Run Stress Test to View Data</div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </main>
     );
 }

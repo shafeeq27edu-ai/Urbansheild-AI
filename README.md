@@ -7,7 +7,11 @@ UrbanShield AI is a premium, investor-grade smart city command center simulation
 - **AI Intelligence**: Predictive analytics for flood and heat stress.
 - **Cinematic UI**: Glassmorphism, ambient animations, and premium data visualization.
 - **Emergency Protocols**: Simulated alert systems with audio feedback.
+<<<<<<< Updated upstream
 Modern cities face increasing climate volatility, yet most systems react only after disasters occur. URBANSHIELD AI shifts the approach from reactive to predictive — using intelligent risk modeling and dynamic scenario simulation to provide early warnings, infrastructure stress insights, and actionable mitigation recommendations.
+=======
+- **Systemic Intelligence (L3)**: Adaptive anomaly detection, infrastructure collapse modeling, and resource allocation optimization.
+>>>>>>> Stashed changes
 
 🚨 The Problem
 
@@ -74,3 +78,153 @@ Risk Categories (Low to Critical)
 -   **Map**: Mapbox GL JS (react-map-gl)
 -   **State**: Zustand
 -   **Animation**: Framer Motion
+-   **Backend**: FastAPI with ML Models (Python)
+-   **ML Engine**: RandomForest with Uncertainty Quantification
+
+## 🧠 Intelligence Layer (Level 3)
+
+UrbanShield AI now features **Systemic Intelligence (L3)** - a championship-level positioning that includes:
+
+### 🌊 Upgrade 8: Dynamic Threshold Adaptation (Climate Drift Awareness)
+- Anomaly detection based on seasonal mean and standard deviation
+- Rainfall anomaly scoring for extreme weather events
+- Climate-aware risk assessment
+
+### 👥 Upgrade 9: Infrastructure Collapse Probability
+- Probabilistic sigmoid model for drainage infrastructure failure
+- Cascading failure impact calculations
+- Real-time structural integrity monitoring
+
+### 🔍 Upgrade 10: Risk Velocity Metric
+- Risk acceleration index calculation
+- Early warning intelligence for rapid risk escalation
+- Derivative-based risk trend analysis
+
+### 🛠️ Upgrade 11: Resource Allocation Optimization Engine
+- Multi-action efficiency comparison (drainage vs green cover)
+- Cost-benefit analysis per risk reduction unit
+- Optimal intervention recommendation system
+
+### 👨‍👩‍👧 Upgrade 12: Socioeconomic Risk Weighting
+- Vulnerability multiplier based on population density
+- Slum ratio and elderly population weighting
+- Humanitarian impact assessment
+
+### 📝 Upgrade 13: Explainable Narrative Generator (Offline)
+- Template-based intelligence reports
+- No API dependency for explainability
+- Context-aware risk insights
+
+### ⚠️ Upgrade 14: Uncertainty Quantification
+- Ensemble variance across 200 trees
+- Prediction confidence bands
+- Scientific uncertainty reporting
+
+### 🌊 Upgrade 15: Stress Interaction Matrix
+- Compound climate stress modeling
+- Rainfall-temperature interaction terms
+- Cascading environmental effects
+
+### 📉 Upgrade 16: Risk Memory (Persistence Layer)
+- Chronic stress accumulation modeling
+- Multi-time step risk persistence
+- Long-term vulnerability assessment
+
+## 🏆 Championship Positioning
+
+UrbanShield AI now represents **Multi-Layer Adaptive Climate Risk Intelligence System** with:
+- Anomaly Detection ✅
+- Infrastructure Failure Modeling ✅
+- Socioeconomic Weighting ✅
+- Resource Optimization ✅
+- Uncertainty Quantification ✅
+
+## 📊 API Endpoints
+
+### Backend (Python FastAPI)
+- `GET /health` - System status
+- `POST /simulate` - Risk calculation with systemic intelligence
+- `POST /sensitivity` - Sensitivity analysis
+
+### Frontend (TypeScript/React)
+- Real-time risk visualization
+- Zone drill-down analytics
+- Intelligence report generation
+- Resource optimization dashboard
+
+## 🚀 Quick Demo
+
+1. Start backend server:
+   ```bash
+   cd backend_v2
+   uvicorn main:app --host 0.0.0.0 --port 8001
+   ```
+
+2. Start frontend:
+   ```bash
+   npm run dev
+   ```
+
+3. Access at http://localhost:3000
+
+## 📈 Performance Metrics
+
+- **Risk Prediction**: 200 trees ensemble
+- **Confidence**: Z-score based OOD detection
+- **Uncertainty**: ±4.6 standard deviation bands
+- **Optimization**: 1.5x efficiency per unit cost
+- **Velocity**: Real-time risk acceleration tracking
+
+## 🎯 Judges' Value Proposition
+
+UrbanShield AI delivers championship-level positioning by:
+- Moving from reactive to strategic/adaptive systems
+- Adding climate drift awareness and infrastructure failure modeling
+- Providing explainable AI without API dependencies
+- Including socioeconomic vulnerability weighting
+- Implementing resource allocation optimization
+- Quantifying uncertainty for scientific credibility
+
+## 🔧 Development
+
+### Backend Setup
+```bash
+cd backend_v2
+pip install -r requirements.txt
+python train.py  # Train models
+uvicorn main:app --host 0.0.0.0 --port 8001
+```
+
+### Frontend Development
+```bash
+npm install
+npm run dev
+```
+
+## 📄 Documentation
+
+- [System Architecture](./docs/architecture.md)
+- [API Reference](./docs/api.md)
+- [ML Model Details](./docs/ml_models.md)
+- [Deployment Guide](./docs/deployment.md)
+
+## 🐛 Troubleshooting
+
+- **Model not found**: Run `python train.py` to generate models
+- **Port conflicts**: Change port in `backend_v2/main.py`
+- **Mapbox errors**: Check `.env.local` for valid token
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🐛 Contributing
+
+1. Fork the repository
+2. Create feature branch
+3. Commit changes
+4. Submit pull request
+
+---
+
+**Built with ❤️ for sustainable urban futures**

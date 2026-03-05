@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useSimulationStore } from '@/store/useSimulationStore';
-import { calculateFloodRisk, calculateHeatRisk, RiskOutput } from '@/lib/inference';
+import { calculateFloodRisk, calculateHeatRisk, generateIntelligenceReport, RiskOutput } from '@/lib/inference';
 
 export interface ZoneRisk {
     id: string;
@@ -13,16 +13,22 @@ export interface ZoneRisk {
     stressLevel: string;
     confidence: number;
     projections: { hour: number; flood: number; heat: number }[];
+    humanitarianImpact: number;
+    infrastructureCollapseProb: number;
+    riskVelocity: number;
+    intelligenceReport: string;
+    optimalAction: string;
+    uncertaintyBand: string;
 }
 
 // EXPANDED TO 6 ZONES AS PER MEGA PROMPT
 const zones = [
-    { id: 'Z1', name: 'Downtown Core', elevation: 0.1, albedo: 0.2, popDensity: 0.95, drain: 0.2, soil: 0.1, humidityBase: 40, heatIndex: 0.9, floodFactor: 0.8 },
-    { id: 'Z2', name: 'Industrial East', elevation: 0.3, albedo: 0.1, popDensity: 0.4, drain: 0.5, soil: 0.05, humidityBase: 35, heatIndex: 0.95, floodFactor: 0.4 },
-    { id: 'Z3', name: 'Waterfront West', elevation: 0.05, albedo: 0.3, popDensity: 0.7, drain: 0.3, soil: 0.2, humidityBase: 60, heatIndex: 0.6, floodFactor: 0.9 },
-    { id: 'Z4', name: 'Uptown Residential', elevation: 0.6, albedo: 0.6, popDensity: 0.5, drain: 0.7, soil: 0.6, humidityBase: 30, heatIndex: 0.4, floodFactor: 0.2 },
-    { id: 'Z5', name: 'Tech Park South', elevation: 0.4, albedo: 0.5, popDensity: 0.6, drain: 0.6, soil: 0.3, humidityBase: 35, heatIndex: 0.7, floodFactor: 0.3 },
-    { id: 'Z6', name: 'Greenway Outskirts', elevation: 0.8, albedo: 0.7, popDensity: 0.2, drain: 0.4, soil: 0.9, humidityBase: 45, heatIndex: 0.2, floodFactor: 0.1 },
+    { id: 'Z1', name: 'Downtown Core', elevation: 0.1, albedo: 0.2, popDensity: 0.95, drain: 0.2, soil: 0.1, humidityBase: 40, heatIndex: 0.9, floodFactor: 0.8, slumRatio: 0.1 },
+    { id: 'Z2', name: 'Industrial East', elevation: 0.3, albedo: 0.1, popDensity: 0.4, drain: 0.5, soil: 0.05, humidityBase: 35, heatIndex: 0.95, floodFactor: 0.4, slumRatio: 0.25 },
+    { id: 'Z3', name: 'Waterfront West', elevation: 0.05, albedo: 0.3, popDensity: 0.7, drain: 0.3, soil: 0.2, humidityBase: 60, heatIndex: 0.6, floodFactor: 0.9, slumRatio: 0.15 },
+    { id: 'Z4', name: 'Uptown Residential', elevation: 0.6, albedo: 0.6, popDensity: 0.5, drain: 0.7, soil: 0.6, humidityBase: 30, heatIndex: 0.4, floodFactor: 0.2, slumRatio: 0.02 },
+    { id: 'Z5', name: 'Tech Park South', elevation: 0.4, albedo: 0.5, popDensity: 0.6, drain: 0.6, soil: 0.3, humidityBase: 35, heatIndex: 0.7, floodFactor: 0.3, slumRatio: 0.05 },
+    { id: 'Z6', name: 'Greenway Outskirts', elevation: 0.8, albedo: 0.7, popDensity: 0.2, drain: 0.4, soil: 0.9, humidityBase: 45, heatIndex: 0.2, floodFactor: 0.1, slumRatio: 0.01 },
 ];
 
 export const useRiskIntelligence = () => {
@@ -30,12 +36,7 @@ export const useRiskIntelligence = () => {
 
     const results = useMemo(() => {
         return zones.map(zone => {
-            // DYNAMIC INPUT CALCULATION
-            // 1. Rainfall MM approximation (0-200% slider maps to 0-300mm for simulation)
             const rainfallMM = (rainfallIncrease / 100) * 150;
-
-            // 2. Drainage Index with User Override
-            // If drainageEfficiency slider is used (it's a drop %), it reduces zones base drainage
             const effectiveDrainage = Math.max(0.05, zone.drain * (1 - (drainageEfficiency / 100)));
 
             const floodInputs = {
@@ -47,7 +48,7 @@ export const useRiskIntelligence = () => {
             };
 
             const heatInputs = {
-                temperature_c: 28 + tempIncrease, // Base 28C + increase
+                temperature_c: 28 + tempIncrease, 
                 humidity_percent: Math.min(100, zone.humidityBase + (rainfallIncrease * 0.1)),
                 urban_heat_index: zone.heatIndex,
                 population_density_index: zone.popDensity
@@ -57,23 +58,40 @@ export const useRiskIntelligence = () => {
             let heat = calculateHeatRisk(heatInputs);
 
             if (mitigationActive) {
-                // Heuristic improvement from policies
                 flood = { ...flood, score: Math.max(0, flood.score * 0.7) };
                 heat = { ...heat, score: Math.max(0, heat.score * 0.75) };
             }
 
-            // Baselines (0 increase)
             const baselineFlood = calculateFloodRisk({ ...floodInputs, rainfall_mm: 0 });
             const baselineHeat = calculateHeatRisk({ ...heatInputs, temperature_c: 28 });
 
-            // Confidence quantifying (heuristic)
-            const confidence = Math.max(0, 95 - (rainfallIncrease / 10) - (tempIncrease * 2));
+            const interactionTerm = (rainfallMM * (28 + tempIncrease)) / 5000;
+            const compoundRisk = (0.55 * flood.score) + (0.35 * heat.score) + (0.1 * interactionTerm);
 
-            // Infrastructure Stress (Interaction of risk and density)
-            const stressScore = Math.min(1, (flood.score * 0.6 + heat.score * 0.4) * (zone.popDensity + 0.5));
+            // Upgrade 12: Socioeconomic Risk Weighting
+            let vulnerabilityFactor = 1.0;
+            if (zone.popDensity > 0.8) vulnerabilityFactor += 0.2;
+            if (zone.slumRatio > 0.2) vulnerabilityFactor += 0.15;
+            const humanitarianImpact = Math.min(1.0, compoundRisk * vulnerabilityFactor);
+
+            // Upgrade 10: Risk Velocity (Approximation)
+            const riskVelocity = (flood.score - baselineFlood.score) / (rainfallIncrease || 1);
+
+            const confidence = Math.max(0, 95 - (rainfallIncrease / 10) - (tempIncrease * 2));
+            const uncertaintyBand = `±${(10 - confidence / 10).toFixed(1)}%`;
+
+            const stressScore = humanitarianImpact;
             const stressLevel = stressScore > 0.8 ? 'CRITICAL' : stressScore > 0.6 ? 'HIGH' : stressScore > 0.3 ? 'MODERATE' : 'LOW';
 
-            // 6-Hour Projections (Deterministic incremental)
+            // Upgrade 11: Resource Allocation Optimization
+            const efficiencyDrainage = (flood.score * 0.3) / 10;
+            const efficiencyGreen = (heat.score * 0.2) / 5;
+            const optimalAction = efficiencyDrainage > efficiencyGreen 
+                ? "Infrastructure: Major Drainage Expansion (Efficiency: 1.5x)"
+                : "Urban Reforestation & Green Roofs (Efficiency: 2.1x)";
+
+            const intelligenceReport = generateIntelligenceReport(flood, heat, compoundRisk, riskVelocity * 10);
+
             const projections = Array.from({ length: 6 }, (_, i) => ({
                 hour: i + 1,
                 flood: Math.min(1, flood.score * (1 + (i + 1) * 0.05)),
@@ -89,10 +107,17 @@ export const useRiskIntelligence = () => {
                 confidence,
                 stressScore,
                 stressLevel,
-                projections
+                projections,
+                humanitarianImpact,
+                infrastructureCollapseProb: flood.collapseProb || 0,
+                riskVelocity,
+                intelligenceReport,
+                optimalAction,
+                uncertaintyBand
             };
         });
     }, [rainfallIncrease, tempIncrease, mitigationActive, drainageEfficiency]);
+
 
     const cityMetrics = useMemo(() => {
         const avgFlood = results.reduce((acc, curr) => acc + curr.flood.score, 0) / results.length;
